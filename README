@@ -1,4 +1,9 @@
-Example usage:
+## Prerequisites
+
+    sudo apt-get install bridge-utils vlan
+
+
+## Example usage
 
     $ sudo ./add-vlans eth0 30 31
     Adding VIDs to interface: eth0
