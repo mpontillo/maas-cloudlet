@@ -2,7 +2,7 @@
 
 if [ "$(id -u)" != "0" ]; then
     echo "This script must be run as root, and requires the following packages:"
-    echo "    bridge-utils vlan"
+    echo "    bridge-utils vlan dnsmasq openvpn"
     exit 2
 fi
 
@@ -24,6 +24,10 @@ fi
 IFACE=$1
 shift
 VIDS="$@"
+
+# Ensure we're in the directory containing all the helper scripts.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"/..
 
 echo "Adding VIDs to interface: $IFACE"
 echo ""
@@ -51,3 +55,10 @@ for VID in $VIDS; do
     echo
 done
 
+echo
+echo
+
+for VID in $VIDS; do
+    echo "Starting dnsmasq on VLAN $VID"
+    lib/cloudlet-dnsmasq $VID
+done
