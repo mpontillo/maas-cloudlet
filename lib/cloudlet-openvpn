@@ -1,0 +1,47 @@
+#!/bin/bash
+
+if [ "$(id -u)" != "0" ]; then
+    echo "This script must be run as root."
+    exit 2
+fi
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <vid>"
+    echo
+    echo "Sets up openvpn on the specified cloudlet VID."
+    echo
+    exit 1
+fi
+
+VID=$1
+
+KEY_DIR="/root/OpenVPN/multi-client/keys"
+CONF_DIR="/root/OpenVPN/multi-client/conf"
+
+mkdir -p $KEY_DIR
+mkdir -p $CONF_DIR
+
+openvpn --mktun --dev tap-vlan$VID
+ip link set dev tap-vlan$VID up
+brctl addif br-vlan$VID tap-vlan$VID
+
+# XXX needs a per-VLAN port number
+# XXX needs to use TUN instead of TAP to work with Android
+# XXX needs to use unique per-client keys
+cat > $CONF_DIR/openvpn-vlan$VID.conf << EOF
+port 1194
+proto udp
+cipher AES-256-CBC
+keepalive 10 120
+# Comment this out for production use with unique keys.
+duplicate-cn
+ca $KEY_DIR/ca.crt
+cert $KEY_DIR/server.crt
+key $KEY_DIR/server.key
+# Diffie hellman parameters.
+# Generate your own with:
+#   openssl dhparam -out dh2048.pem 2048
+dh $KEY_DIR/dh2048.pem
+comp-lzo
+EOF
+
