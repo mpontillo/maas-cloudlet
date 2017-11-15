@@ -33,15 +33,19 @@ mkdir -p $STATE_DIR
 # Pass empty DHCP options for 3 and 6 so that the client's
 # DNS and default gateway aren't overwritten.
 # Add '--no-daemon' to the parameters below for debugging.
-dnsmasq \
+ip netns exec tenant$VID dnsmasq \
     --port 0 \
     --pid-file=$PID_FILE \
     --dhcp-authoritative \
-    --interface=br-vlan$VID \
+    --interface=veth$VID \
     --dhcp-range=100.64.$VID.10,100.64.$VID.199 \
     --listen-address=100.64.$VID.1 \
     --dhcp-leasefile=$STATE_DIR/vlan-$VID.leases \
     --except-interface=lo \
-    --dhcp-option=3 \
-    --dhcp-option=6 \
+    --dhcp-option=3,100.64.$VID.1 \
+    --dhcp-option=6,8.8.8.8 \
     --bind-dynamic
+
+# Use these to provide *NO* router address or DNS address.
+#    --dhcp-option=3 \
+#    --dhcp-option=6 \
