@@ -1,4 +1,10 @@
-# Prerequisites
+# Importtant Notice
+
+This repository is now obsolete. The scripts here can now be found in the
+[elijah-provisioning repository](https://github.com/blakerouse/elijah-provisioning/tree/orangebox/bin).
+
+
+## Prerequisites
 
     sudo apt-get install bridge-utils vlan
 
